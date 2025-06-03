@@ -1,8 +1,16 @@
 """Issue prioritiser: 이슈의 우선순위를 자동으로 설정"""
 import os
+import re
 from openai import OpenAI
 from github import Github
 from autogen_project.utils.constants import OPENAI_MODEL
+
+
+def extract_priority_label(line):
+    match = re.search(r'(priority-(high|medium|low))', line)
+    if match:
+        return match.group(1)
+    return None
 
 
 def main():
@@ -35,8 +43,13 @@ def main():
     # 3. 라벨 적용
     priorities = resp.choices[0].message.content.strip().split("\n")
     for i, p in zip(issues, priorities):
-        label = p.split(": ")[1].strip()
-        i.add_to_labels(label)
+        label = extract_priority_label(p)
+        if label:
+            # 기존 priority 라벨 제거
+            for l in i.labels:
+                if l.name in ["priority-high", "priority-medium", "priority-low"]:
+                    i.remove_from_labels(l)
+            i.add_to_labels(label)
 
 
 if __name__ == "__main__":
