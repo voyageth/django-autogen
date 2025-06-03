@@ -10,7 +10,6 @@ def calendar_view(request):
 
 
 def events_api(request):
-    # Return all events as JSON for calendar
     events = Event.objects.all()
     events_list = []
     for event in events:
