@@ -10,6 +10,13 @@ from autogen_project.utils.github import github_manager
 from autogen_project.utils.constants import OPENAI_MODEL
 
 
+def branch_exists(branch_name):
+    for ref in github_manager.repo.get_git_refs():
+        if ref.ref == f"refs/heads/{branch_name}":
+            return True
+    return False
+
+
 def run_coder_agent():
     """코더 에이전트 실행 함수"""
     issue = github_manager.fetch_current_issue()
@@ -18,7 +25,8 @@ def run_coder_agent():
         return
 
     branch = f"autogen/{issue.number}-{issue.title[:30].replace(' ', '-')}"
-    github_manager.create_branch(branch)
+    if not branch_exists(branch):
+        github_manager.create_branch(branch)
 
     # Include current tree for context
     tree = pathlib.Path('.').rglob('*')
