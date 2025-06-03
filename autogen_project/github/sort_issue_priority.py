@@ -22,6 +22,12 @@ def main():
     # 1. 모든 열린 이슈 가져오기
     issues = list(repo.get_issues(state="open"))
 
+    # 이미 now-working 라벨이 붙은 이슈가 있으면 전체 작업 스킵
+    for i in issues:
+        if any(l.name == "now-working" for l in i.labels):
+            print("now-working 라벨이 붙은 이슈가 있어 우선순위 정렬을 스킵합니다.")
+            return
+
     # 2. GPT로 우선순위 설정
     prompt = f"""
     다음 이슈들의 우선순위를 설정하세요.
@@ -40,8 +46,15 @@ def main():
         temperature=0
     )
 
-    # 3. 라벨 적용
+    # 3. 라벨 적용 및 now-working 관리
     priorities = resp.choices[0].message.content.strip().split("\n")
+    # 모든 이슈에서 now-working 라벨 제거
+    for i in issues:
+        for l in i.labels:
+            if l.name == "now-working":
+                i.remove_from_labels(l)
+    # priority-high 이슈 중 첫 번째에 now-working 라벨 부여
+    high_priority_issues = []
     for i, p in zip(issues, priorities):
         label = extract_priority_label(p)
         if label:
@@ -50,6 +63,10 @@ def main():
                 if l.name in ["priority-high", "priority-medium", "priority-low"]:
                     i.remove_from_labels(l)
             i.add_to_labels(label)
+            if label == "priority-high":
+                high_priority_issues.append(i)
+    if high_priority_issues:
+        high_priority_issues[0].add_to_labels("now-working")
 
 
 if __name__ == "__main__":

@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: '10 * * * *'
   workflow_dispatch:
+  issues:
+    types: [closed, labeled, unlabeled, opened, reopened]
+  pull_request:
+    types: [closed]
 
 jobs:
   sort-issues:
