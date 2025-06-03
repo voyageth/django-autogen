@@ -4,7 +4,7 @@ import base64
 import requests
 from typing import Optional, List, Dict, Any
 from github import Github, Repository
-from constants import GITHUB_REVIEW_EVENTS
+from autogen_project.utils.constants import GITHUB_REVIEW_EVENTS
 
 
 class GitHubManager:
