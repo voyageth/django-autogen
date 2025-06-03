@@ -13,7 +13,7 @@ class GitHubManager:
     def __init__(self, repo: Repository):
         """초기화"""
         self.repo = repo
-        self.repo_name = repo.name
+        self.repo_name = repo.full_name
         self.token = os.getenv("GITHUB_TOKEN")
         self.api_url = f"https://api.github.com/repos/{self.repo_name}"
         self.headers = {
@@ -21,7 +21,6 @@ class GitHubManager:
             "Accept": "application/vnd.github+json"
         }
         self.github = Github(self.token)
-        self.repo = self.github.get_repo(self.repo_name)
 
     def create_branch(self, branch: str, base: str = "main") -> None:
         """새로운 브랜치를 생성합니다."""
