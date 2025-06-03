@@ -51,13 +51,18 @@ class GitHubManager:
             "content": b64,
             "branch": branch
         }
-        
-        resp = requests.put(url, headers=self.headers, json=data)
-        if resp.status_code == 409:  # file exists → get sha then update
-            sha = resp.json()["content"]["sha"]
-            data["sha"] = sha
+        try:
             resp = requests.put(url, headers=self.headers, json=data)
-        resp.raise_for_status()
+            if resp.status_code == 409:  # file exists → get sha then update
+                sha = resp.json()["content"]["sha"]
+                data["sha"] = sha
+                resp = requests.put(url, headers=self.headers, json=data)
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print(f"Failed to upsert file: {path} on branch: {branch}")
+            print(f"Content length: {len(content)}")
+            print(f"Response: {resp.text}")
+            raise
 
     def create_pr(
         self,

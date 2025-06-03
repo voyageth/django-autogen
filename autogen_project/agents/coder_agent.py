@@ -61,6 +61,7 @@ def run_coder_agent():
     files = json.loads(code_json)
 
     for f in files:
+        print(f"Uploading file: {f['path']} (branch: {branch}, content length: {len(f['content'])})")
         github_manager.upsert_file(
             f["path"],
             f["content"],
