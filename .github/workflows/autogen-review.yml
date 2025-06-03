@@ -24,4 +24,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          python -m autogen_project.github.review_and_merge
+          python -m .github.autogen_project.github.review_and_merge

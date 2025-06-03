@@ -34,4 +34,4 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           cd $(pwd)
-          python -m autogen_project.github.gen_issues_from_goals 
+          python -m .github.autogen_project.github.gen_issues_from_goals 

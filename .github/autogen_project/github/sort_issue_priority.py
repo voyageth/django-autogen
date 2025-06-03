@@ -3,7 +3,7 @@ import os
 import re
 from openai import OpenAI
 from github import Github
-from autogen_project.utils.constants import OPENAI_MODEL
+from .github.autogen_project.utils.constants import OPENAI_MODEL
 
 
 def extract_priority_label(line):

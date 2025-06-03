@@ -4,8 +4,8 @@ import json
 import re
 from openai import OpenAI
 from github import Github
-from autogen_project.utils.constants import OPENAI_MODEL
-from autogen_project.utils.github import GitHubManager
+from .github.autogen_project.utils.constants import OPENAI_MODEL
+from .github.autogen_project.utils.github import GitHubManager
 
 
 def main():

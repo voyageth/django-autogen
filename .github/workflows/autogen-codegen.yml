@@ -23,4 +23,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          python -m autogen_project.agents.coder_agent
+          python -m .github.autogen_project.agents.coder_agent
