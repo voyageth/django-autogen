@@ -1,1 +1,0 @@
-"""Django AutoGen 프로젝트 패키지""" 
