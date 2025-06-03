@@ -4,45 +4,6 @@ from autogen_project.utils.github import github_manager
 from autogen_project.utils.constants import OPENAI_MODEL
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-g = Github(os.getenv("GITHUB_TOKEN"))
-repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
-
-# 1. now-working 라벨이 있는 이슈 찾기
-issues = list(repo.get_issues(state="open", labels=["now-working"]))
-if not issues:
-    print("No issues with 'now-working' label found.")
-    exit(0)
-
-issue = issues[0]
-print(f"Working on issue: #{issue.number} - {issue.title}")
-
-# 2. GPT로 코드 생성
-prompt = f"""
-다음 이슈를 해결하기 위한 코드를 생성하세요:
-제목: {issue.title}
-설명: {issue.body}
-
-코드는 다음 형식으로 출력하세요:
-```python
-# 코드
-```
-
-```requirements.txt
-# 필요한 패키지
-```
-"""
-
-resp = openai.ChatCompletion.create(
-    model=OPENAI_MODEL,
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.2
-)
-
-# 3. 코드 저장 및 PR 생성
-code = resp.choices[0].message.content
-
-# TODO: 코드를 파일로 저장하고 PR 생성하는 로직 구현
-print("Generated code:", code)
 
 def run_coder_agent():
     """코더 에이전트 실행 함수"""
@@ -51,7 +12,6 @@ def run_coder_agent():
         print("[coder] no now-working issue")
         return
 
-    repo_name = os.getenv("GITHUB_REPOSITORY")
     branch = f"autogen/{issue.number}-{issue.title[:30].replace(' ', '-')}"
     github_manager.create_branch(branch)
 
