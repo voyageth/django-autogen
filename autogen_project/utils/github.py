@@ -51,12 +51,13 @@ class GitHubManager:
             "content": b64,
             "branch": branch
         }
+        # 파일이 이미 존재하는지 체크
+        get_resp = requests.get(url + f"?ref={branch}", headers=self.headers)
+        if get_resp.status_code == 200:
+            sha = get_resp.json()["sha"]
+            data["sha"] = sha
         try:
             resp = requests.put(url, headers=self.headers, json=data)
-            if resp.status_code == 409:  # file exists → get sha then update
-                sha = resp.json()["content"]["sha"]
-                data["sha"] = sha
-                resp = requests.put(url, headers=self.headers, json=data)
             resp.raise_for_status()
         except requests.exceptions.HTTPError as e:
             print(f"Failed to upsert file: {path} on branch: {branch}")
