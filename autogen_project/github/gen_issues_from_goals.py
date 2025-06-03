@@ -9,14 +9,13 @@ from autogen_project.utils.constants import OPENAI_MODEL
 
 def main():
     """메인 실행 함수"""
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    g = Github(os.getenv("GITHUB_TOKEN"))
-    repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
-
     # 1. project_goals.md 읽기
     with open("project_goals.md", "r") as f:
         goals = f.read()
 
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    g = Github(os.getenv("GITHUB_TOKEN"))
+    repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
     # 2. GPT로 이슈 생성
     prompt = f"""
     다음 프로젝트 목표를 GitHub 이슈로 변환하세요.
