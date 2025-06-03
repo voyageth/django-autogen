@@ -3,10 +3,11 @@ name: AutoGen coder
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
 
 jobs:
   code:
-    if: github.event.label.name == 'now-working'
+    if: github.event.label.name == 'now-working' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
