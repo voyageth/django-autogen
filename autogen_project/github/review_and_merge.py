@@ -1,52 +1,42 @@
-"""ReviewerAgent: PR diff를 GPT로 리뷰 후 자동 Approve+Merge / Request‑changes"""
+"""PR 리뷰어: PR을 자동으로 리뷰하고 머지"""
 import os
 import openai
-from ..utils.constants import OPENAI_MODEL
-from ..utils.github import github_manager
-
-
-def review_code(diff: str) -> tuple[str, bool]:
-    """GPT로 코드를 리뷰합니다."""
-    system = "당신은 숙련된 Django 시니어 개발자이자 코드 리뷰어입니다."
-    review_prompt = f"""
-    다음 Pull Request diff를 리뷰하세요.
-    - 버그, 보안, 성능, 스타일 문제를 지적하고 개선안을 제안
-    - 문제가 없다면 마지막 줄에 정확히 `LGTM` 만 적으세요.
-
-    ```diff
-    {diff}
-    ```
-    """
-    
-    try:
-        resp = openai.ChatCompletion.create(
-            model=OPENAI_MODEL,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": review_prompt}
-            ],
-            temperature=0
-        )
-        review = resp.choices[0].message.content.strip()
-        is_approved = "LGTM" in review
-        return review, is_approved
-    except Exception as e:
-        print(f"리뷰 생성 중 오류 발생: {str(e)}")
-        return f"리뷰 생성 중 오류가 발생했습니다: {str(e)}", False
+from github import Github
+from autogen_project.utils.constants import OPENAI_MODEL
+from autogen_project.utils.github import GitHubManager
 
 
 def main():
     """메인 실행 함수"""
-    pr_number = int(os.getenv("PR_NUMBER", os.getenv("GITHUB_REF").split("/")[-2]))
-    
-    # PR diff 가져오기
-    diff = github_manager.get_pr_diff(pr_number)
-    
-    # 코드 리뷰
-    review, is_approved = review_code(diff)
-    
-    # 리뷰 생성 및 PR 처리
-    github_manager.review_pr(pr_number, review, is_approved)
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    g = Github(os.getenv("GITHUB_TOKEN"))
+    repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
+    github_manager = GitHubManager(repo)
+
+    # 1. 모든 열린 PR 가져오기
+    prs = list(repo.get_pulls(state="open"))
+
+    for pr in prs:
+        # 2. GPT로 리뷰
+        prompt = f"""
+        다음 PR을 리뷰하세요:
+        제목: {pr.title}
+        설명: {pr.body}
+        변경사항: {github_manager.get_pr_changes(pr)}
+        """
+
+        resp = openai.ChatCompletion.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0
+        )
+
+        # 3. 리뷰 작성
+        review = resp.choices[0].message.content.strip()
+        pr.create_review(body=review, event="APPROVE")
+
+        # 4. 머지
+        pr.merge()
 
 
 if __name__ == "__main__":

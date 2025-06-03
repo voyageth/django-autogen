@@ -4,7 +4,7 @@ import json
 import re
 import openai
 from github import Github
-from ..utils.constants import OPENAI_MODEL
+from autogen_project.utils.constants import OPENAI_MODEL
 
 
 def main():
