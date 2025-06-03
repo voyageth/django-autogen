@@ -2,14 +2,14 @@
 import os
 import json
 import re
-import openai
+from openai import OpenAI
 from github import Github
 from autogen_project.utils.constants import OPENAI_MODEL
 
 
 def main():
     """메인 실행 함수"""
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     g = Github(os.getenv("GITHUB_TOKEN"))
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
 
@@ -30,7 +30,7 @@ def main():
     {goals}
     """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=OPENAI_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0

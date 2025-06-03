@@ -1,6 +1,6 @@
 """PR 리뷰어: PR을 자동으로 리뷰하고 머지"""
 import os
-import openai
+from openai import OpenAI
 from github import Github
 from autogen_project.utils.constants import OPENAI_MODEL
 from autogen_project.utils.github import GitHubManager
@@ -8,7 +8,7 @@ from autogen_project.utils.github import GitHubManager
 
 def main():
     """메인 실행 함수"""
-    openai.api_key = os.getenv("OPENAI_API_KEY")
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     g = Github(os.getenv("GITHUB_TOKEN"))
     repo = g.get_repo(os.getenv("GITHUB_REPOSITORY"))
     github_manager = GitHubManager(repo)
@@ -25,7 +25,7 @@ def main():
         변경사항: {github_manager.get_pr_changes(pr)}
         """
 
-        resp = openai.ChatCompletion.create(
+        resp = client.chat.completions.create(
             model=OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0
