@@ -3,16 +3,17 @@ import os
 import base64
 import requests
 from typing import Optional, List, Dict, Any
-from github import Github
+from github import Github, Repository
 from constants import GITHUB_REVIEW_EVENTS
 
 
 class GitHubManager:
     """GitHub 작업을 관리하는 클래스"""
     
-    def __init__(self):
-        """GitHub 매니저 초기화"""
-        self.repo_name = os.getenv("GITHUB_REPOSITORY")
+    def __init__(self, repo: Repository):
+        """초기화"""
+        self.repo = repo
+        self.repo_name = repo.name
         self.token = os.getenv("GITHUB_TOKEN")
         self.api_url = f"https://api.github.com/repos/{self.repo_name}"
         self.headers = {
@@ -148,6 +149,22 @@ class GitHubManager:
         )
         return issues[0] if issues.totalCount else None
 
+    def get_pr_changes(self, pr) -> str:
+        """PR의 변경사항을 가져옵니다."""
+        return "\n".join(f"{f.filename}: {f.patch}" for f in pr.get_files())
+
+    def get_existing_issues(self):
+        """기존 이슈 목록을 가져옵니다."""
+        issues = []
+        for issue in self.repo.get_issues(state="open"):
+            issues.append({
+                "number": issue.number,
+                "title": issue.title,
+                "body": issue.body,
+                "labels": [label.name for label in issue.labels]
+            })
+        return issues
+
 
 # 싱글톤 인스턴스 생성
-github_manager = GitHubManager()
+github_manager = GitHubManager(Github(os.getenv("GITHUB_TOKEN")).get_repo(os.getenv("GITHUB_REPOSITORY")))
