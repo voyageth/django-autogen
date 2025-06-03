@@ -17,6 +17,12 @@ def branch_exists(branch_name):
     return False
 
 
+def safe_branch_name(issue_number, issue_title):
+    # 한글, 특수문자, 공백 모두 제거(영어, 숫자, 하이픈, 언더스코어만 허용)
+    safe_title = re.sub(r'[^a-zA-Z0-9-_]', '', issue_title.replace(' ', '-')).lower()
+    return f"autogen/{issue_number}-{safe_title[:30]}"
+
+
 def run_coder_agent():
     """코더 에이전트 실행 함수"""
     issue = github_manager.fetch_current_issue()
@@ -24,7 +30,7 @@ def run_coder_agent():
         print("[coder] no now-working issue")
         return
 
-    branch = f"autogen/{issue.number}-{issue.title[:30].replace(' ', '-')}"
+    branch = safe_branch_name(issue.number, issue.title)
     if not branch_exists(branch):
         github_manager.create_branch(branch)
 
