@@ -23,5 +23,5 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          python -m .github.autogen_project.github.review_and_merge
+          run: |
+            python .github/autogen_project/github/review_and_merge.py

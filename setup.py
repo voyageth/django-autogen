@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name=".github.autogen_project",
+    name="autogen_project",
     version="0.1.0",
-    packages=find_packages(),
+    package_dir={"": ".github"},
+    packages=find_packages(where=".github"),
     install_requires=[
         "openai",
         "PyGithub",
         "python-mcp",
     ],
-) 
+)
