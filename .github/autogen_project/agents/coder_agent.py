@@ -5,9 +5,8 @@ import re
 import textwrap
 from openai import OpenAI
 import pathlib
-import tempfile
-from .github.autogen_project.utils.github import github_manager
-from .github.autogen_project.utils.constants import OPENAI_MODEL
+from ..utils.github import github_manager
+from ..utils.constants import OPENAI_MODEL
 
 
 def branch_exists(branch_name):
