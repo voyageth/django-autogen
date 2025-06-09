@@ -1,4 +1,7 @@
-from agents.coder_agent import run_coder_agent
+import os
+import sys
 
 if __name__ == "__main__":
-    run_coder_agent()
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "autogen_project.settings")
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)

@@ -9,5 +9,6 @@ setup(
         "openai",
         "PyGithub",
         "python-mcp",
+        "Django",
     ],
 )
